@@ -1,0 +1,39 @@
+# NovaDL — All-in-One Video Downloader · Render blueprint
+# Two independent services: web panel (gunicorn) + Telegram bot (long polling).
+
+services:
+  - type: web
+    name: novadl-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: OWNER_ID
+        value: "6097891113"
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATA_DIR
+        value: /var/data/novadl
+    disk:
+      name: novadl-data
+      mountPath: /var/data
+      sizeGB: 1
+
+  - type: worker
+    name: novadl-bot
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python bot.py
+    envVars:
+      - key: OWNER_ID
+        value: "6097891113"
+      - key: BOT_TOKEN
+        sync: false
+      - key: DATA_DIR
+        value: /var/data/novadl
+    disk:
+      name: novadl-data
+      mountPath: /var/data
+      sizeGB: 1
